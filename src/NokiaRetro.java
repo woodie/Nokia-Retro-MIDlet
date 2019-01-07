@@ -16,13 +16,14 @@ public class NokiaRetro extends MIDlet {
   private FontCanvas fontCanvas = null;
   private boolean painting = false;
   private static Image badge = null;
-  private static Image fontImage = null;
-  private static int fontMultiplier = 4;
-  private static String fontFile = "font28x36.png"; // most characters are 6 units wide
+  private static Image fontImageLarge = null; // mx:6
+  private static Image fontImageSmall = null; // mx:4
+  private static String fontFileLarge = "/font42x54.png";
+  private static String fontFileTrace = "/font35x44.png";
+  private static String fontFileSmall = "/font28x36.png";
   private static String chrIndex = "m MWw ?KNOQTVXY <>JLScrs (),/1;=fjt{} !.:I[]`il '|";
   private static String chrWidth = "9 888 777777777 55555555 444444444444 333333333 22";
   public Calendar calendar;
-  public Date currentDate;
 
   public NokiaRetro() {
     display = Display.getDisplay(this);
@@ -50,12 +51,13 @@ public class NokiaRetro extends MIDlet {
       this.setFullScreenMode(true);
       try {
         badge = Image.createImage ("/badge.png");
-        fontImage = Image.createImage (fontFile);
+        fontImageLarge = Image.createImage (fontFileLarge);
+        fontImageSmall = Image.createImage (fontFileSmall);
       } catch (Exception ex) {
       }
     }
 
-    public void customFont(Graphics g, String phrase, int fx, int fy) {
+    public void customFont(Graphics g, Image img, int mx, String phrase, int fx, int fy) {
       for (int i = 0; i < phrase.length(); i++) {
         int cw = 6;
         int ch = 9;
@@ -76,12 +78,12 @@ public class NokiaRetro extends MIDlet {
             }
           }
           System.out.println("cw: " + cw);
-          cw *= fontMultiplier; ch *= fontMultiplier;
-          cx *= fontMultiplier; cy *= fontMultiplier;
+          cw *= mx; ch *= mx;
+          cx *= mx; cy *= mx;
           g.setClip(fx, fy, cw, ch);
-          g.drawImage(fontImage, fx - cx, fy - cy, Graphics.LEFT | Graphics.TOP);
+          g.drawImage(img, fx - cx, fy - cy, Graphics.LEFT | Graphics.TOP);
         } else {
-          cw = 3 * fontMultiplier;
+          cw = 3 * mx;
         }
         fx += cw;
       }
@@ -93,24 +95,12 @@ public class NokiaRetro extends MIDlet {
       g.setColor(130, 200, 170); // Green Screen
       g.fillRect(0, panel_offset, width, panel_height);
 
-      Font font1 = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_LARGE);
-      Font font2 = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
-      Font font3 = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN,Font.SIZE_SMALL);
-
-      calendar = Calendar.getInstance(TimeZone.getTimeZone("US/Pacific"));
-      currentDate = calendar.getTime();
-
       // when System.getProperty("phone.imei")
       g.drawImage (badge, width / 2, height / 3 - 30, Graphics.VCENTER | Graphics.HCENTER);
 
       g.setColor(0, 0, 0);
-      int position = panel_offset + 20;
-      g.setFont(font1);
-      g.drawString(currentDate + "", 10, position, Graphics.LEFT | Graphics.TOP);
-      position = position + font1.getHeight() + 10;
-      g.drawString("Some Test", 10,
-          position, Graphics.LEFT | Graphics.TOP);
-      customFont(g, "Nokia", 10, panel_offset + 130);
+      customFont(g, fontImageLarge, 6, "NOKIA", 33, panel_offset + 60);
+      customFont(g, fontImageSmall, 4, "Menu", 70, panel_offset + 130);
       painting = false;
     }
   }

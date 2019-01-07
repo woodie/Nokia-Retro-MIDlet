@@ -6,4 +6,4 @@ MicroEdition-Configuration: CLDC-1.1
 MicroEdition-Profile: MIDP-2.0
 MIDlet-Icon: icon64x64.png
 MIDlet-Jar-URL: Nokia-Retro.jar
-MIDlet-Jar-Size: 44217
+MIDlet-Jar-Size: 43960
