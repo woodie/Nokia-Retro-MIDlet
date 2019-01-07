@@ -1,0 +1,117 @@
+import java.io.*;
+import java.lang.*;
+import javax.microedition.io.*;
+import javax.microedition.rms.*;
+import javax.microedition.lcdui.*;
+import javax.microedition.midlet.*;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
+public class NokiaRetro extends MIDlet {
+  public static final boolean COLOR = false;
+  public static final boolean DEBUG = false;
+  private Display display = null;
+  private FontCanvas fontCanvas = null;
+  private boolean painting = false;
+  private static Image badge = null;
+  private static Image fontImage = null;
+  private static int fontMultiplier = 4;
+  private static String fontFile = "font28x36.png"; // most characters are 6 units wide
+  private static String chrIndex = "m MWw ?KNOQTVXY <>JLScrs (),/1;=fjt{} !.:I[]`il '|";
+  private static String chrWidth = "9 888 777777777 55555555 444444444444 333333333 22";
+  public Calendar calendar;
+  public Date currentDate;
+
+  public NokiaRetro() {
+    display = Display.getDisplay(this);
+    fontCanvas = new FontCanvas(this);
+  }
+
+  public void startApp() throws MIDletStateChangeException {
+    display.setCurrent(fontCanvas);
+  }
+
+  public void pauseApp() {}
+
+  protected void destroyApp(boolean unconditional)
+      throws MIDletStateChangeException {}
+
+  class FontCanvas extends Canvas {
+    private NokiaRetro parent = null;
+    private int width = getWidth();
+    private int height = getHeight();
+    private int panel_height = width / 10 * 7;
+    private int panel_offset = height - panel_height - 20;
+
+    public FontCanvas(NokiaRetro parent) {
+      this.parent = parent;
+      this.setFullScreenMode(true);
+      try {
+        badge = Image.createImage ("/badge.png");
+        fontImage = Image.createImage (fontFile);
+      } catch (Exception ex) {
+      }
+    }
+
+    public void customFont(Graphics g, String phrase, int fx, int fy) {
+      for (int i = 0; i < phrase.length(); i++) {
+        int cw = 6;
+        int ch = 9;
+        char character = phrase.charAt(i);
+        int ascii = (int) character;
+        if (ascii > 32 && ascii < 127) {
+          int cx = ((ascii - 32) % 8) * 7;
+          int cy = ((ascii - 32) / 8) * 9;
+          if (ascii == 34 || ascii == 92) {
+            cw = 3; // straight-double-quote & backslash
+          } else {
+            int chrWidthIndex = chrIndex.indexOf(character);
+            System.out.println("character: " + character);
+            System.out.println("chrWidthIndex: " + chrWidthIndex);
+            if (chrWidthIndex != -1) {
+              cw = ((int) chrWidth.charAt(chrWidthIndex)) - 48;
+              if (cw > 7) { cx -= cw - 7; }
+            }
+          }
+          System.out.println("cw: " + cw);
+          cw *= fontMultiplier; ch *= fontMultiplier;
+          cx *= fontMultiplier; cy *= fontMultiplier;
+          g.setClip(fx, fy, cw, ch);
+          g.drawImage(fontImage, fx - cx, fy - cy, Graphics.LEFT | Graphics.TOP);
+        } else {
+          cw = 3 * fontMultiplier;
+        }
+        fx += cw;
+      }
+    }
+
+    public void paint(Graphics g) {
+      g.setColor(0, 0, 0);
+      g.fillRect(0, 0, width, height + 25);
+      g.setColor(130, 200, 170); // Green Screen
+      g.fillRect(0, panel_offset, width, panel_height);
+
+      Font font1 = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_LARGE);
+      Font font2 = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
+      Font font3 = Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN,Font.SIZE_SMALL);
+
+      calendar = Calendar.getInstance(TimeZone.getTimeZone("US/Pacific"));
+      currentDate = calendar.getTime();
+
+      // when System.getProperty("phone.imei")
+      g.drawImage (badge, width / 2, height / 3 - 30, Graphics.VCENTER | Graphics.HCENTER);
+
+      g.setColor(0, 0, 0);
+      int position = panel_offset + 20;
+      g.setFont(font1);
+      g.drawString(currentDate + "", 10, position, Graphics.LEFT | Graphics.TOP);
+      position = position + font1.getHeight() + 10;
+      g.drawString("Some Test", 10,
+          position, Graphics.LEFT | Graphics.TOP);
+      customFont(g, "Nokia", 10, panel_offset + 130);
+      painting = false;
+    }
+  }
+}

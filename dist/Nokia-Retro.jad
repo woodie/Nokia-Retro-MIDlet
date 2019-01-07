@@ -1,0 +1,9 @@
+MIDlet-1: NokiaRetro, , NokiaRetro
+MIDlet-Name: NokiaRetro
+MIDlet-Vendor: Netpress.com
+MIDlet-Version: 0.1
+MicroEdition-Configuration: CLDC-1.1
+MicroEdition-Profile: MIDP-2.0
+MIDlet-Icon: icon64x64.png
+MIDlet-Jar-URL: Nokia-Retro.jar
+MIDlet-Jar-Size: 44217
